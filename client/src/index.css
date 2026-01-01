@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --hud-primary: #00ff88;
+  --hud-secondary: #00ccff;
+  --hud-warning: #ffcc00;
+  --hud-danger: #ff4444;
+}
+
+body {
+  font-family: 'JetBrains Mono', monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* HUD Animations */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px var(--hud-primary), 0 0 10px var(--hud-primary); }
+  50% { box-shadow: 0 0 10px var(--hud-primary), 0 0 20px var(--hud-primary), 0 0 30px var(--hud-primary); }
+}
+
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.hud-panel {
+  background: rgba(0, 20, 30, 0.85);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.1), inset 0 0 20px rgba(0, 255, 136, 0.05);
+}
+
+.hud-text {
+  color: var(--hud-primary);
+  text-shadow: 0 0 10px var(--hud-primary);
+}
+
+.hud-value {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+}
+
+/* Loading screen */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0a0a1a 100%);
+  z-index: 1000;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 3px solid rgba(0, 255, 136, 0.2);
+  border-top-color: var(--hud-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Crosshair */
+.crosshair {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 100;
+}
+
+.crosshair::before,
+.crosshair::after {
+  content: '';
+  position: absolute;
+  background: var(--hud-primary);
+  opacity: 0.7;
+}
+
+.crosshair::before {
+  width: 20px;
+  height: 2px;
+  left: -10px;
+  top: -1px;
+}
+
+.crosshair::after {
+  width: 2px;
+  height: 20px;
+  left: -1px;
+  top: -10px;
+}
