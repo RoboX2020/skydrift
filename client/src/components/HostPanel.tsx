@@ -11,5 +11,5 @@ export function HostPanel() {
     {Array.from(s.players.values()).map(p => <div className="pilot-row" key={p.id}><i style={{ background: p.color }}/>{p.name}</div>)}
     {!s.players.size && <p className="footnote">Waiting for the first pilot...</p>}
     <button className="text-button" onClick={() => navigator.clipboard?.writeText(join.href).catch(() => {})}>Copy join link</button>
-    <p className="footnote">On local Wi-Fi, open this screen using your laptop's LAN IP, not localhost.</p></aside></>;
+    <p className="footnote">On iPhone, turn sideways with rotation lock off. For an app-style screen: Safari Share → Add to Home Screen. Open the app and enter this room ID.</p></aside></>;
 }
