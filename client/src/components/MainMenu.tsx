@@ -11,7 +11,7 @@ export function MainMenu() {
     <section className="launch-card">
       <span className="eyebrow">THE LIVING ROOM FLIGHT CLUB</span>
       <h1>Small world.<br/><span>Big air.</span></h1>
-      <p className="intro">One shared sky. Four pilots. Fly first-person on your phone.</p>
+      <p className="intro">One shared sky. Four pilots. Follow your aircraft on your phone. Switch to cockpit view anytime.</p>
       <div className="chips"><span>3D arena</span><span>QR join</span><span>4 pilots</span></div>
       <label>Callsign<input value={s.playerName} maxLength={20} onChange={e => s.setPlayerName(e.target.value)} /></label>
       <label>Room ID<input value={roomId} onChange={e => setRoomId(e.target.value.trim())} placeholder="Scan the host QR or paste a room ID" /></label>
