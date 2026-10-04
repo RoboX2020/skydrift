@@ -4,7 +4,7 @@ export function MainMenu() {
   const query = new URLSearchParams(location.search);
   const invitedRoom = query.get('room') || '';
   const [roomId, setRoomId] = useState(invitedRoom);
-  const [server, setServer] = useState(query.get('server') || `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:2567`);
+  const [server, setServer] = useState(query.get('server') || (location.hostname === 'localhost' || location.hostname === '127.0.0.1' ? `ws://${location.hostname}:2567` : 'wss://skydrift-server-n20c.onrender.com'));
   const s = useGameStore();
   return <main className="launch">
     <div className="launch-art"><div className="orbit orbit-a"/><div className="orbit orbit-b"/><span className="plane-mark">↗</span></div>
@@ -19,7 +19,7 @@ export function MainMenu() {
       <button className="primary" disabled={s.connecting || !s.playerName.trim() || !roomId} onClick={() => s.connect(server, s.playerName, 'pilot', roomId)}>{s.connecting ? 'Connecting...' : 'Join as pilot →'}</button>
       {!invitedRoom && <button className="secondary" disabled={s.connecting} onClick={() => s.connect(server, 'Host', 'host')}>Open host screen</button>}
       <details><summary>Connection settings</summary><label>WebSocket server<input value={server} onChange={e => setServer(e.target.value)} /></label></details>
-      <p className="footnote">Host on a laptop or TV. Scan with phones on the same network.</p>
+      <p className="footnote">Host on a laptop or TV. Scan with phones to join from anywhere. Free server startup can take about a minute.</p>
     </section>
   </main>;
 }
