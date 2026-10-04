@@ -11,6 +11,9 @@ const TICK_RATE = 60; // Physics updates per second
 const NETWORK_RATE = 20; // State syncs per second
 
 interface PlayerInputMessage {
+  forward: number;
+  strafe: number;
+  vertical: number;
   pitch: number;
   roll: number;
   yaw: number;
@@ -21,6 +24,7 @@ interface PlayerInputMessage {
 
 interface JoinOptions {
   name?: string;
+  role?: string;
 }
 
 export class SkyDriftRoom extends Room<GameRoomSchema> {
@@ -32,7 +36,8 @@ export class SkyDriftRoom extends Room<GameRoomSchema> {
     console.log('SkyDrift room created!', options);
     
     this.setState(new GameRoomSchema());
-    this.maxClients = 16;
+    this.maxClients = 5; // One display and four pilots
+    this.setPatchRate(1000 / NETWORK_RATE);
     
     // Initialize weather
     this.state.weather.windSpeed = 5;
@@ -45,13 +50,17 @@ export class SkyDriftRoom extends Room<GameRoomSchema> {
     // Handle player input
     this.onMessage('input', (client: Client, message: PlayerInputMessage) => {
       const player = this.state.players.get(client.sessionId);
-      if (!player) return;
+      if (!player || !message || typeof message !== 'object') return;
       
+      const axis=(v: number)=>Number.isFinite(v)?Math.max(-1,Math.min(1,v)):0;
+      player.inputForward=axis(message.forward);
+      player.inputStrafe=axis(message.strafe);
+      player.inputVertical=axis(message.vertical);
       // Clamp and apply input
-      player.inputPitch = Math.max(-1, Math.min(1, message.pitch || 0));
-      player.inputRoll = Math.max(-1, Math.min(1, message.roll || 0));
-      player.inputYaw = Math.max(-1, Math.min(1, message.yaw || 0));
-      player.inputThrottle = Math.max(0, Math.min(1, message.throttle ?? 0.5));
+      player.inputPitch = Math.max(-1, Math.min(1, Number.isFinite(message.pitch) ? message.pitch : 0));
+      player.inputRoll = Math.max(-1, Math.min(1, Number.isFinite(message.roll) ? message.roll : 0));
+      player.inputYaw = Math.max(-1, Math.min(1, Number.isFinite(message.yaw) ? message.yaw : 0));
+      player.inputThrottle = Math.max(0, Math.min(1, Number.isFinite(message.throttle) ? message.throttle : 0.5));
       player.inputBrake = !!message.brake;
       player.inputBoost = !!message.boost;
       player.lastUpdate = Date.now();
@@ -68,12 +77,12 @@ export class SkyDriftRoom extends Room<GameRoomSchema> {
     // Handle chat
     this.onMessage('chat', (client: Client, message: { text: string }) => {
       const player = this.state.players.get(client.sessionId);
-      if (!player) return;
+      if (!player || !message || typeof message !== 'object') return;
       
       this.broadcast('chat', {
         playerId: client.sessionId,
         playerName: player.name,
-        text: message.text?.substring(0, 200) || '',
+        text: typeof message.text === 'string' ? message.text.substring(0, 200) : '',
         timestamp: Date.now(),
       });
     });
@@ -98,12 +107,18 @@ export class SkyDriftRoom extends Room<GameRoomSchema> {
     console.log('Game loop started at', TICK_RATE, 'Hz');
   }
 
+  onAuth(_client: Client, options: JoinOptions) {
+    if (options.role === 'host') return this.clients.length === 0;
+    return this.state.players.size < 4;
+  }
+
   onJoin(client: Client, options: JoinOptions) {
     console.log(`Player ${client.sessionId} joined!`);
     
+    if (options.role === 'host') return; // Display observes without spawning a plane
     const player = new PlayerSchema();
     player.id = client.sessionId;
-    player.name = options.name || `Pilot_${client.sessionId.substring(0, 4)}`;
+    player.name = (typeof options.name === 'string' ? options.name.trim().slice(0, 20) : '') || `Pilot_${client.sessionId.substring(0, 4)}`;
     player.color = PLAYER_COLORS[this.colorIndex % PLAYER_COLORS.length];
     player.joinedAt = Date.now();
     player.lastUpdate = Date.now();
@@ -162,6 +177,11 @@ export class SkyDriftRoom extends Room<GameRoomSchema> {
     
     // Update physics for all players
     this.state.players.forEach((player) => {
+      if (now - player.lastUpdate > 500) {
+        player.inputForward = player.inputStrafe = player.inputVertical = 0;
+        player.inputPitch = player.inputRoll = player.inputYaw = 0;
+        player.inputBoost = player.inputBrake = false;
+      }
       updatePlayerPhysics(player, deltaTime);
     });
     
