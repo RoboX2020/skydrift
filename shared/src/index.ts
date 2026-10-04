@@ -24,8 +24,8 @@ export const PHYSICS = {
   
   // World bounds
   WORLD: {
-    SIZE: 10000, // meters
-    MAX_ALTITUDE: 5000,
+    SIZE: 600, // meters
+    MAX_ALTITUDE: 240,
     GROUND_LEVEL: 0,
   },
   
@@ -117,11 +117,11 @@ export enum MessageType {
 
 // Spawn points
 export const SPAWN_POINTS: Vector3[] = [
-  { x: 0, y: 500, z: 0 },
-  { x: 500, y: 500, z: 500 },
-  { x: -500, y: 500, z: 500 },
-  { x: 500, y: 500, z: -500 },
-  { x: -500, y: 500, z: -500 },
+  { x: 0, y: 100, z: 0 },
+  { x: 90, y: 100, z: 90 },
+  { x: -90, y: 100, z: 90 },
+  { x: 90, y: 100, z: -90 },
+  { x: -90, y: 100, z: -90 },
 ];
 
 // Color palette for players
