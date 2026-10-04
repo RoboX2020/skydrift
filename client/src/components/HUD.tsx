@@ -148,7 +148,7 @@ interface AttitudeIndicatorProps {
   isOnGround: boolean;
 }
 
-function AttitudeIndicator({ pitch, roll, isOnGround }: AttitudeIndicatorProps) {
+function AttitudeIndicator({ pitch, roll }: AttitudeIndicatorProps) {
   return (
     <div className="w-32">
       <div className="text-xs text-gray-400 mb-2 text-center">ATTITUDE</div>
