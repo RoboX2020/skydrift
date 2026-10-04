@@ -3,6 +3,7 @@ import { Client, Room } from 'colyseus.js';
 interface Player { id: string; name: string; color: string; score: number; aircraft: any }
 interface Input { forward: number; strafe: number; vertical: number; pitch: number; roll: number; yaw: number; throttle: number; brake: boolean; boost: boolean }
 interface State {
+  cameraView: 'chase' | 'cockpit'; setCameraView:(view:'chase'|'cockpit')=>void;
   connected: boolean; connecting: boolean; error: string | null; room: Room | null;
   serverUrl: string; role: 'host' | 'pilot'; players: Map<string, Player>; playerId: string | null;
   timeOfDay: number; playerName: string; showChat: boolean; showControls: boolean;
@@ -15,6 +16,7 @@ interface State {
 const neutral: Input = { forward: 0, strafe: 0, vertical: 0, pitch: 0, roll: 0, yaw: 0, throttle: 0.5, brake: false, boost: false };
 let timer: ReturnType<typeof setInterval> | undefined;
 export const useGameStore = create<State>((set, get) => ({
+  cameraView:'chase',setCameraView:(cameraView)=>set({cameraView}),
   connected: false, connecting: false, error: null, room: null, serverUrl: '', role: 'pilot',
   players: new Map(), playerId: null, timeOfDay: 12, playerName: 'Pilot',
   showChat: false, showControls: true, chatMessages: [], input: { ...neutral },
