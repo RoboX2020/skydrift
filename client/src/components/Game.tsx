@@ -14,7 +14,9 @@ function PilotCamera() {
     const s=useGameStore.getState();const p=s.playerId && s.players.get(s.playerId); if(!p)return;
     const a=p.aircraft; const q=new THREE.Quaternion(a.rotation.x,a.rotation.y,a.rotation.z,a.rotation.w);
     const forward=new THREE.Vector3(0,0,1).applyQuaternion(q);
-    position.current.set(a.position.x,a.position.y+3,a.position.z);
+    const chase=s.cameraView==='chase';
+    position.current.set(a.position.x,a.position.y+(chase?16:3),a.position.z);
+    if(chase) position.current.addScaledVector(forward,-48);
     camera.position.lerp(position.current,Math.min(1,delta*18));
     look.current.copy(camera.position).addScaledVector(forward,100);camera.lookAt(look.current);
   });return null;
@@ -22,7 +24,7 @@ function PilotCamera() {
 function Scene({pilot}:{pilot:boolean}) {
   const s=useGameStore();
   return <><Skybox timeOfDay={s.timeOfDay}/><Ocean/><Terrain/><Runway/>
-    {Array.from(s.players.values()).filter(p=>!pilot || p.id!==s.playerId).map(p=><Aircraft key={p.id} position={[p.aircraft.position.x,p.aircraft.position.y,p.aircraft.position.z]} rotation={[p.aircraft.rotation.x,p.aircraft.rotation.y,p.aircraft.rotation.z,p.aircraft.rotation.w]} color={p.color} name={p.name}/>)}
+    {Array.from(s.players.values()).filter(p=>!pilot || p.id!==s.playerId || s.cameraView==='chase').map(p=><Aircraft key={p.id} position={[p.aircraft.position.x,p.aircraft.position.y,p.aircraft.position.z]} rotation={[p.aircraft.rotation.x,p.aircraft.rotation.y,p.aircraft.rotation.z,p.aircraft.rotation.w]} color={p.color} isLocal={p.id===s.playerId} name={p.name}/>)}
     {pilot?<PilotCamera/>:<OrbitControls target={[0,20,0]} maxDistance={900} minDistance={200} maxPolarAngle={Math.PI/2.1}/>}
     <fog attach="fog" args={['#b5d9ea',1100,2400]}/>
   </>;
