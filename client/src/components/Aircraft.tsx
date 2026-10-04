@@ -50,10 +50,10 @@ export function Aircraft({ position, rotation, color, isLocal = false, name }: A
   const aircraftColor = useMemo(() => new THREE.Color(color), [color]);
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} scale={3}>
       {/* Aircraft model - properly oriented: forward = +Z, up = +Y, right = +X */}
       {/* Fuselage - cylinder rotated to align with Z-axis (forward) */}
-      <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
+      <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
         <cylinderGeometry args={[0.5, 0.7, 6, 16]} />
         <meshStandardMaterial color={aircraftColor} metalness={0.6} roughness={0.4} />
       </mesh>
