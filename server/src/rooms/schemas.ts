@@ -39,6 +39,9 @@ export class PlayerSchema extends Schema {
   @type('number') lastUpdate: number = 0;
   
   // Input state (not synced to other clients for security)
+  inputForward: number = 0;
+  inputStrafe: number = 0;
+  inputVertical: number = 0;
   inputPitch: number = 0;
   inputRoll: number = 0;
   inputYaw: number = 0;
