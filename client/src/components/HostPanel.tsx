@@ -1,3 +1,10 @@
+// ============================================================================
+// HostPanel - what the big screen (laptop/TV) shows next to the 3D world:
+// a QR code and room ID so friends' phones can join instantly, the list of
+// pilots currently flying, and a copyable join link. The QR encodes a URL
+// with the room + server baked in, so scanning it lands phones pre-filled
+// on the MainMenu.
+// ============================================================================
 import { QRCodeSVG } from 'qrcode.react';
 import { useGameStore } from '../store/gameStore';
 export function HostPanel() {

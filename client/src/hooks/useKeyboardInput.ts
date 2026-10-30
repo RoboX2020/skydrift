@@ -1,3 +1,10 @@
+// ============================================================================
+// useKeyboardInput - lets a LAPTOP pilot fly with the keyboard (W/S pitch,
+// A/D roll, Q/E yaw, Shift throttle up, Space brake). Phones use the
+// on-screen sticks instead (PhoneController.tsx). Keys are tracked in a
+// little table; 60x/sec the table is converted into joystick-style input
+// values in gameStore, which the server picks up.
+// ============================================================================
 import { useEffect, useCallback } from 'react';
 import { useGameStore } from '../store/gameStore';
 

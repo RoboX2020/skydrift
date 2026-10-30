@@ -1,3 +1,14 @@
+// ============================================================================
+// SkyDrift "shared" package - types and constants both sides import.
+//
+// The repo has three parts: client/ (the app on phones + big screen),
+// server/ (the game referee), and shared/ (THIS folder) - the common
+// language they both speak, so "what a plane looks like" is defined once.
+// Note: the server currently uses its own schemas/physics (see
+// server/src/rooms/), so treat this file as the reference design - some
+// values here (like realistic lift/drag constants) describe a more
+// simulator-like model than the arcade physics actually shipped.
+// ============================================================================
 // ============================================
 // SkyDrift - Shared Types & Constants
 // ============================================

@@ -1,3 +1,12 @@
+// ============================================================================
+// schemas.ts - the shape of the shared game state.
+//
+// Colyseus watches these objects and automatically sends every change to
+// all connected phones/screens - that is how everyone sees the same world
+// without writing any networking code. Fields marked with @type are synced
+// to clients; the input* fields on PlayerSchema have no @type, so joystick
+// values stay server-side (see the note in the class).
+// ============================================================================
 import { Schema, type, MapSchema } from '@colyseus/schema';
 
 // Vector3 Schema

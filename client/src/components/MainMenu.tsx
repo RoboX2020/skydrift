@@ -1,3 +1,10 @@
+// ============================================================================
+// MainMenu - the front door of the app. Enter your callsign + the room ID
+// from the host's QR code and join as a pilot, or open the big-screen host
+// view. The server address is filled in automatically (local when running
+// on your own machine, the hosted server otherwise) and can be overridden
+// under "Connection settings".
+// ============================================================================
 import { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 export function MainMenu() {

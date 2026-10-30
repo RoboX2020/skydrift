@@ -1,3 +1,13 @@
+// ============================================================================
+// Game.tsx - the 3D world, drawn with react-three-fiber (Three.js for React).
+//
+// Two ways to look at the same world:
+//   pilot (a phone): a camera glued behind (or inside) YOUR plane
+//   host  (big screen): an orbit camera you can drag around the whole arena
+// Everything visual lives here or in Environment.tsx (ground/sea/sky) and
+// Aircraft.tsx (the planes). Plane positions come from gameStore, which the
+// server keeps updated (see store/gameStore.ts).
+// ============================================================================
 import { Suspense, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';

@@ -1,3 +1,20 @@
+// ============================================================================
+// gameStore.ts - the client's memory, and its only line to the server.
+//
+// One shared "store" (built with zustand) that every screen reads from:
+// am I connected, who is flying, where are the planes, what is my joystick
+// doing. Components never talk to the network directly - they call the
+// functions here (connect, updateInput, respawn, sendChat...) and read the
+// values here.
+//
+// THE NETWORK LOOP, in plain words:
+//   connect()   opens a WebSocket to the game server and joins a room.
+//   updateInput() just writes into this store; a timer sends the current
+//               joystick state to the server every 50 ms (20x/sec).
+//   onStateChange fires whenever the server broadcasts new world state;
+//               we copy the plane positions into this store, and React
+//               redraws the 3D scene.
+// ============================================================================
 import { create } from 'zustand';
 import { Client, Room } from 'colyseus.js';
 interface Player { id: string; name: string; color: string; score: number; aircraft: any }
@@ -13,6 +30,7 @@ interface State {
   respawn: () => void; sendChat: (text: string) => void;
   setShowChat: (v: boolean) => void; setShowControls: (v: boolean) => void; setPlayerName: (v: string) => void;
 }
+// The "hands off the sticks" input every plane starts (and resets) with.
 const neutral: Input = { forward: 0, strafe: 0, vertical: 0, pitch: 0, roll: 0, yaw: 0, throttle: 0.5, brake: false, boost: false };
 let timer: ReturnType<typeof setInterval> | undefined;
 export const useGameStore = create<State>((set, get) => ({
@@ -20,6 +38,8 @@ export const useGameStore = create<State>((set, get) => ({
   connected: false, connecting: false, error: null, room: null, serverUrl: '', role: 'pilot',
   players: new Map(), playerId: null, timeOfDay: 12, playerName: 'Pilot',
   showChat: false, showControls: true, chatMessages: [], input: { ...neutral },
+  // Join a game. The big screen "creates" the room as the host; pilots join
+  // a specific room by ID (from the QR/link) or whichever is open.
   connect: async (url, name, role = 'pilot', roomId) => {
     if (get().connecting || get().connected) return;
     set({ connecting: true, error: null });
@@ -30,23 +50,29 @@ export const useGameStore = create<State>((set, get) => ({
         : roomId ? await client.joinById(roomId, { name, role })
         : await client.joinOrCreate('skydrift', { name, role });
       set({ room, role, serverUrl: url, connected: true, connecting: false, playerId: room.sessionId, input: { ...neutral } });
+      // Server pushed new world state: copy the planes into the store.
       room.onStateChange((state: any) => {
         const players = new Map<string, Player>();
         state.players.forEach((p: any, id: string) => players.set(id, p.toJSON()));
         set({ players, timeOfDay: state.timeOfDay });
       });
+      // Keep only the 50 most recent chat messages.
       room.onMessage('chat', (message) => set({ chatMessages: [...get().chatMessages.slice(-49), message] }));
       room.onMessage('playerJoined', () => {});
       room.onMessage('playerLeft', () => {});
+      // Connection lost or left: forget everything about the game.
       room.onLeave(() => {
         clearInterval(timer);
         set({ connected: false, room: null, playerId: null, players: new Map(), input: { ...neutral } });
       });
       room.onError((_code, message) => set({ error: message || 'Connection interrupted' }));
+      // Pilots stream their joystick to the server 20x/sec.
       if (role === 'pilot') timer = setInterval(() => get().room?.send('input', get().input), 50);
     } catch (e) { set({ connecting: false, error: e instanceof Error ? e.message : 'Could not join room' }); }
   },
   disconnect: () => { clearInterval(timer); void get().room?.leave(); set({ connected: false, room: null, players: new Map(), input: { ...neutral } }); },
+  // Merge new joystick values into the current input (the send timer picks
+  // them up on its next run).
   updateInput: (input) => set({ input: { ...get().input, ...input } }),
   respawn: () => get().room?.send('respawn'),
   sendChat: (text) => { if (text.trim()) get().room?.send('chat', { text: text.trim() }); },

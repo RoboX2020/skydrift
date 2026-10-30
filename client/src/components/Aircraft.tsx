@@ -1,3 +1,13 @@
+// ============================================================================
+// Aircraft.tsx - draws one plane in the 3D world.
+//
+// The plane is built from simple shapes (cylinders, boxes, spheres) - no
+// 3D model files. The important trick is the smoothing: network updates
+// arrive ~20x/sec, but the screen draws ~60x/sec, so each frame the plane
+// glides a little toward its latest known position instead of jumping.
+// Your own plane glides faster (feels responsive); other planes glide
+// slower (hides their network lag).
+// ============================================================================
 import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';

@@ -1,3 +1,8 @@
+/*
+  index.css - the app's stylesheet: the launch/menu screen, the phone
+  controller overlay (sticks, buttons, prompts), the host panel, and the
+  HUD look. The 3D world itself is drawn by Three.js, not CSS.
+*/
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -1,6 +1,24 @@
+// ============================================================================
+// PhoneController - the pilot's screen: your phone IS the game controller.
+//
+// What a pilot sees overlaid on (or next to) the 3D view:
+//   - two virtual joysticks: left = yaw + up/down, right = move
+//   - altitude/speed readout, a "Reset" (respawn) button, camera toggle
+//   - a first-run prompt offering fullscreen + landscape mode
+//
+// THE INTERESTING PROBLEM IT SOLVES: phones rotate, lock orientation, and
+// refuse fullscreen in quirky ways (especially iPhones). The immersive()
+// function asks the browser nicely, then explains in plain words what the
+// player can do when the browser says no.
+// Joystick moves are written into gameStore.updateInput(); gameStore's
+// timer forwards them to the server (see store/gameStore.ts).
+// ============================================================================
 import { useEffect, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 type Axis = 'forward' | 'strafe' | 'vertical' | 'yaw';
+// One draggable joystick. `axes` names which two input channels it drives
+// (e.g. yaw left-right + vertical up-down). Dragging writes -1..1 values
+// into the store; releasing snaps the knob back to center and zeros both.
 function Stick({label,axes,legend}:{label:string;axes:[Axis,Axis];legend:string}) {
   const [point,setPoint]=useState([0,0]);const update=useGameStore(s=>s.updateInput);
   const reset=()=>{setPoint([0,0]);update({[axes[0]]:0,[axes[1]]:0});};
@@ -16,12 +34,17 @@ function Stick({label,axes,legend}:{label:string;axes:[Axis,Axis];legend:string}
 export function PhoneController() {
   const s=useGameStore();const [prompt,setPrompt]=useState(true);const [note,setNote]=useState('');
   const [fullscreen,setFullscreen]=useState(!!document.fullscreenElement);
+  // Keep the button label honest if the user leaves fullscreen by other means.
   useEffect(()=>{const change=()=>setFullscreen(!!document.fullscreenElement);document.addEventListener('fullscreenchange',change);return()=>document.removeEventListener('fullscreenchange',change);},[]);
+  // If the player switches apps or the tab hides, zero the sticks so the
+  // plane does not keep flying on a stuck joystick.
   useEffect(()=>{
     const reset=()=>s.updateInput({forward:0,strafe:0,vertical:0,yaw:0});
     window.addEventListener('blur',reset);document.addEventListener('visibilitychange',reset);
     return()=>{reset();window.removeEventListener('blur',reset);document.removeEventListener('visibilitychange',reset);};
   },[s.updateInput]);
+  // Try to enter fullscreen and lock landscape; collect friendly fallback
+  // instructions for whatever the browser refuses (noted on screen after).
   const immersive=async()=>{
     const messages:string[]=[];
     const root=document.documentElement as HTMLElement & {webkitRequestFullscreen?:()=>Promise<void>|void};

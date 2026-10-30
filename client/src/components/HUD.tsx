@@ -1,3 +1,10 @@
+// ============================================================================
+// HUD.tsx - the "heads-up display": the flight-instrument overlays drawn on
+// top of the 3D view (speed, altitude, throttle, compass, attitude ball,
+// pilot list, control hints). Pure display: it reads gameStore and renders;
+// it never changes the game. (Note: the current pilot screen uses
+// PhoneController's simpler overlay; this richer HUD remains available.)
+// ============================================================================
 import { useGameStore } from '../store/gameStore';
 
 export function HUD() {

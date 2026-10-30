@@ -1,3 +1,8 @@
+// ============================================================================
+// Environment.tsx - the scenery: island ground, ocean, runway, sky and
+// clouds, all from simple shapes (no art files). The trees are placed by a
+// golden-angle spiral so they look naturally scattered instead of gridded.
+// ============================================================================
 import { Sky } from '@react-three/drei';
 export function Terrain() {
   return <group>
