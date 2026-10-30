@@ -28,6 +28,7 @@ export function HUD() {
         <div className="space-y-4">
           <HUDGauge 
             label="SPEED" 
+            // physics stores speed in meters/second; x 3.6 shows km/h
             value={Math.round(aircraft.speed * 3.6)} 
             unit="KM/H" 
             max={500}
@@ -132,6 +133,8 @@ function HUDGauge({ label, value, unit, max, color }: HUDGaugeProps) {
 
 function CompassDisplay({ heading }: { heading: number }) {
   const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+  // 8 compass points, 45 deg each: divide heading by 45 and round to find the
+  // nearest named direction. % 8 wraps 360 deg back to N (index 0).
   const index = Math.round(heading / 45) % 8;
   
   return (
@@ -160,7 +163,11 @@ function AttitudeIndicator({ pitch, roll }: AttitudeIndicatorProps) {
     <div className="w-32">
       <div className="text-xs text-gray-400 mb-2 text-center">ATTITUDE</div>
       <div className="relative w-32 h-32 rounded-full border-2 border-hud-primary/30 overflow-hidden bg-gradient-to-b from-blue-900 to-amber-900">
-        {/* Horizon line */}
+        {/* Horizon line - this is a real artificial horizon in miniature: it
+            ROTATES with roll and SLIDES up/down with pitch, while the little
+            aircraft symbol below stays fixed. (Input values are -1..1, so the
+            multipliers set the visual range: full roll = +/-45 deg of horizon
+            tilt, full pitch = +/-30 px of slide.) */}
         <div 
           className="absolute inset-0 flex items-center justify-center"
           style={{ 

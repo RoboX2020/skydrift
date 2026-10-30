@@ -43,7 +43,10 @@ export function Aircraft({ position, rotation, color, isLocal = false, name }: A
   useFrame((_, delta) => {
     if (!groupRef.current) return;
     
-    // Use frame-rate independent interpolation
+    // Use frame-rate independent interpolation. `delta` is the seconds since the
+    // last drawn frame, so `delta * 20` means "close the remaining gap to the
+    // target at a rate of 20 per second" - the same smoothness whether the screen
+    // runs at 30 or 144 fps. (min with 1 prevents overshoot on a very long frame.)
     if (isLocal) {
       // Local player: very responsive but still smooth
       const lerpFactor = Math.min(1, delta * 20);
